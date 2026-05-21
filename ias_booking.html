@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Service — IAS Florida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ice:#7dd3fc;--ice-deep:#0ea5e9;--deep:#050b14;--ocean:#0a1929;--sunset:#fb923c;--coral:#f97316;--rose:#f43f5e;--emerald:#10b981}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Manrope',sans-serif;background:var(--deep);color:white;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.aurora{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 800px 600px at 20% 30%,rgba(125,211,252,.15),transparent 60%),radial-gradient(ellipse 700px 500px at 80% 70%,rgba(251,146,60,.1),transparent 60%)}
+.grid-pattern{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(125,211,252,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(125,211,252,.03) 1px,transparent 1px);background-size:60px 60px;opacity:.6}
+.snow-container{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.snowflake{position:absolute;top:-40px;color:rgba(125,211,252,.3);animation:snowfall linear infinite}
+@keyframes snowfall{0%{transform:translateY(0) rotate(0)}10%,90%{opacity:.5}100%{transform:translateY(110vh) rotate(360deg);opacity:0}}
+.app-shell{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;padding:0}
+.app-header{padding:24px 24px 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(5,11,20,.8);backdrop-filter:blur(20px);z-index:50;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.05)}
+.back-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);text-decoration:none;font-size:14px;transition:color .2s;cursor:pointer;background:none;border:none;font-family:inherit}
+.back-btn:hover{color:white}
+.app-header-logo{display:flex;align-items:center;gap:8px}
+.app-header-logo .name{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
+.app-header-logo .sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(125,211,252,.7);letter-spacing:2px}
+.lang-toggle{display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:999px;padding:3px;position:relative}
+.lang-btn{position:relative;padding:5px 11px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1px;cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,.5);transition:color .3s;z-index:2}
+.lang-btn.active{color:white}
+.lang-slider{position:absolute;top:3px;left:3px;height:calc(100% - 6px);width:calc(50% - 3px);background:linear-gradient(135deg,var(--ice),var(--ice-deep));border-radius:999px;transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:1}
+.lang-slider.es{transform:translateX(100%)}
+.progress-section{padding:24px;background:rgba(5,11,20,.6);backdrop-filter:blur(10px);position:sticky;top:73px;z-index:40;border-bottom:1px solid rgba(255,255,255,.04)}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.step-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(125,211,252,.8);text-transform:uppercase}
+.step-counter{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px}
+.progress-bar{height:3px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--ice),var(--sunset));border-radius:999px;transition:width .6s cubic-bezier(.22,1,.36,1);width:14%}
+.steps-container{flex:1;padding:32px 24px;position:relative;overflow:hidden}
+.step{display:none;animation:slideIn .5s cubic-bezier(.22,1,.36,1)}
+.step.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.step-icon{display:inline-flex;padding:14px;border-radius:18px;margin-bottom:20px;background:linear-gradient(135deg,var(--ice),var(--ice-deep));box-shadow:0 0 60px rgba(125,211,252,.3)}
+.step-icon.orange{background:linear-gradient(135deg,var(--sunset),var(--rose));box-shadow:0 0 60px rgba(251,146,60,.3)}
+.step-icon.emerald{background:linear-gradient(135deg,#5eead4,var(--emerald));box-shadow:0 0 60px rgba(16,185,129,.3)}
+.step-title{font-family:'Fraunces',serif;font-size:32px;font-weight:400;line-height:1.1;margin-bottom:10px;letter-spacing:-.02em}
+.step-title .italic{font-style:italic;color:rgba(255,255,255,.5)}
+.step-sub{color:rgba(255,255,255,.5);font-size:14px;margin-bottom:32px;line-height:1.5}
+.option-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.option{display:flex;align-items:center;gap:14px;padding:18px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .25s cubic-bezier(.22,1,.36,1)}
+.option:hover{background:rgba(255,255,255,.05);transform:translateX(4px)}
+.option.selected{background:rgba(251,146,60,.1);border-color:rgba(251,146,60,.5);box-shadow:0 0 0 4px rgba(251,146,60,.08)}
+.option-emoji{font-size:24px;line-height:1;flex-shrink:0}
+.option-info{flex:1}
+.option-title{font-weight:600;font-size:15px;margin-bottom:2px}
+.option-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.4}
+.option-arrow{color:rgba(255,255,255,.2);transition:color .2s,transform .2s}
+.option.selected .option-arrow{color:var(--sunset);transform:translateX(4px)}
+.form-input{width:100%;padding:16px 20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:white;font-family:inherit;font-size:16px;transition:all .3s;margin-bottom:14px}
+.form-input:focus{outline:none;border-color:rgba(125,211,252,.5);background:rgba(255,255,255,.06);box-shadow:0 0 0 4px rgba(125,211,252,.08)}
+.form-input::placeholder{color:rgba(255,255,255,.3)}
+.form-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block}
+.time-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
+.time-slot{padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);text-align:center;cursor:pointer;transition:all .2s;font-size:13px}
+.time-slot:hover{background:rgba(255,255,255,.06)}
+.time-slot.selected{background:rgba(125,211,252,.1);border-color:rgba(125,211,252,.5)}
+.time-slot .time{font-weight:600;font-size:15px;margin-bottom:2px}
+.time-slot .meta{font-size:10px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+.date-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px;scrollbar-width:none}
+.date-pills::-webkit-scrollbar{display:none}
+.date-pill{flex-shrink:0;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);text-align:center;cursor:pointer;min-width:64px;transition:all .2s}
+.date-pill:hover{background:rgba(255,255,255,.06)}
+.date-pill.selected{background:rgba(125,211,252,.1);border-color:rgba(125,211,252,.5)}
+.date-pill .dow{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:4px}
+.date-pill .day{font-family:'Fraunces',serif;font-size:22px;font-weight:500}
+.date-pill.selected .day{color:var(--ice)}
+.summary-card{padding:24px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);margin-bottom:24px}
+.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
+.summary-row:last-child{border-bottom:none}
+.summary-row .key{color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.summary-row .val{text-align:right;font-weight:500;max-width:60%}
+.app-footer{padding:20px 24px 32px;background:linear-gradient(to top,var(--deep) 60%,transparent);position:sticky;bottom:0;z-index:30}
+.btn-row{display:flex;gap:12px}
+.btn-back-step{flex:0 0 auto;padding:16px 20px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:white;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-back-step:hover{background:rgba(255,255,255,.08)}
+.btn-next{flex:1;padding:16px;border-radius:999px;background:linear-gradient(135deg,var(--coral),var(--rose));box-shadow:0 0 60px rgba(251,146,60,.3);color:white;border:none;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .2s,opacity .2s}
+.btn-next:hover{transform:scale(1.02)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.success-screen{display:none;text-align:center;padding:48px 24px;animation:slideIn .5s cubic-bezier(.22,1,.36,1)}
+.success-screen.active{display:block}
+.success-icon-large{width:96px;height:96px;margin:0 auto 28px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),#34d399);display:flex;align-items:center;justify-content:center;animation:pop .6s cubic-bezier(.22,1.5,.36,1);box-shadow:0 0 80px rgba(16,185,129,.4)}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.success-screen h2{font-family:'Fraunces',serif;font-size:36px;font-weight:400;margin-bottom:12px;line-height:1.1}
+.success-screen>p{color:rgba(255,255,255,.6);margin-bottom:32px;font-size:15px;line-height:1.5}
+.confirmation-code{display:inline-block;padding:10px 18px;border-radius:999px;background:rgba(125,211,252,.1);border:1px solid rgba(125,211,252,.3);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ice);letter-spacing:2px;margin-bottom:32px}
+.success-actions{display:flex;flex-direction:column;gap:12px}
+.success-btn{padding:16px;border-radius:999px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;text-decoration:none;color:white}
+.success-btn.primary{background:linear-gradient(135deg,var(--coral),var(--rose));box-shadow:0 0 60px rgba(251,146,60,.2)}
+.success-btn.primary:hover{transform:scale(1.02)}
+.success-btn.secondary{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.success-btn.secondary:hover{background:rgba(255,255,255,.08)}
+.urgency-banner{padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(251,146,60,.15),rgba(244,63,94,.1));border:1px solid rgba(251,146,60,.3);display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.urgency-banner svg{flex-shrink:0;color:var(--sunset)}
+.urgency-banner .text{font-size:13px;color:rgba(255,255,255,.85)}
+.urgency-banner .text strong{color:white;display:block;margin-bottom:2px}
+@media (max-width:480px){.app-shell{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="grid-pattern"></div>
+<div class="snow-container" id="snowContainer"></div>
+
+<div class="app-shell">
+
+<div class="app-header">
+<button class="back-btn" onclick="window.location.href='ias_florida_landing.html'">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+<span data-i18n="back">Back</span>
+</button>
+<div class="app-header-logo">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="1.5"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg>
+<div><div class="name">IAS</div><div class="sub">FLORIDA</div></div>
+</div>
+<div class="lang-toggle">
+<div class="lang-slider" id="langSlider"></div>
+<button class="lang-btn active" data-lang="en">EN</button>
+<button class="lang-btn" data-lang="es">ES</button>
+</div>
+</div>
+
+<div class="progress-section" id="progressSection">
+<div class="progress-header">
+<span class="step-label" id="stepLabel">Service Type</span>
+<span class="step-counter" id="stepCounter">STEP 1 / 7</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="steps-container">
+
+<!-- STEP 1: Service Type -->
+<div class="step active" data-step="1">
+<div class="step-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s1.title">What do you<br><span class="italic">need fixed?</span></h2>
+<p class="step-sub" data-i18n="s1.sub">Pick the closest match. We'll narrow it down when we call.</p>
+<div class="option-grid">
+<div class="option" data-value="repair">
+<div class="option-emoji">🔧</div>
+<div class="option-info"><div class="option-title" data-i18n="s1.repair">AC Repair</div><div class="option-desc" data-i18n="s1.repair.d">Not cooling, leaking, strange noises</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="install">
+<div class="option-emoji">⚡</div>
+<div class="option-info"><div class="option-title" data-i18n="s1.install">New Installation</div><div class="option-desc" data-i18n="s1.install.d">Full system replacement or new construction</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="maintenance">
+<div class="option-emoji">🧰</div>
+<div class="option-info"><div class="option-title" data-i18n="s1.maintenance">Maintenance / Tune-Up</div><div class="option-desc" data-i18n="s1.maintenance.d">Scheduled inspection, filter, coil cleaning</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="commercial">
+<div class="option-emoji">🏢</div>
+<div class="option-info"><div class="option-title" data-i18n="s1.commercial">Commercial / Refrigeration</div><div class="option-desc" data-i18n="s1.commercial.d">Restaurant, business, walk-in coolers</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="other">
+<div class="option-emoji">🤔</div>
+<div class="option-info"><div class="option-title" data-i18n="s1.other">Not sure / Other</div><div class="option-desc" data-i18n="s1.other.d">We'll figure it out together</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+</div>
+</div>
+
+<!-- STEP 2: Urgency -->
+<div class="step" data-step="2">
+<div class="step-icon orange">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s2.title">How urgent<br><span class="italic">is this?</span></h2>
+<p class="step-sub" data-i18n="s2.sub">Helps us prioritize and give you the right ETA.</p>
+<div class="option-grid">
+<div class="option" data-value="emergency">
+<div class="option-emoji">🚨</div>
+<div class="option-info"><div class="option-title" data-i18n="s2.emergency">Emergency — need help now</div><div class="option-desc" data-i18n="s2.emergency.d">Tech dispatched within 90 minutes</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="today">
+<div class="option-emoji">⏰</div>
+<div class="option-info"><div class="option-title" data-i18n="s2.today">Today if possible</div><div class="option-desc" data-i18n="s2.today.d">Same-day priority slot</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="week">
+<div class="option-emoji">📅</div>
+<div class="option-info"><div class="option-title" data-i18n="s2.week">Within a few days</div><div class="option-desc" data-i18n="s2.week.d">Pick from open slots this week</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="planning">
+<div class="option-emoji">📝</div>
+<div class="option-info"><div class="option-title" data-i18n="s2.planning">Just planning / quoting</div><div class="option-desc" data-i18n="s2.planning.d">No rush — request a free estimate</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+</div>
+</div>
+
+<!-- STEP 3: Property Type -->
+<div class="step" data-step="3">
+<div class="step-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s3.title">Where's the<br><span class="italic">work happening?</span></h2>
+<p class="step-sub" data-i18n="s3.sub">Helps us send the right tech with the right equipment.</p>
+<div class="option-grid">
+<div class="option" data-value="house">
+<div class="option-emoji">🏠</div>
+<div class="option-info"><div class="option-title" data-i18n="s3.house">Single-family home</div><div class="option-desc" data-i18n="s3.house.d">House, townhouse, duplex</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="condo">
+<div class="option-emoji">🏙️</div>
+<div class="option-info"><div class="option-title" data-i18n="s3.condo">Condo / Apartment</div><div class="option-desc" data-i18n="s3.condo.d">High-rise or mid-rise residential</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="business">
+<div class="option-emoji">🏬</div>
+<div class="option-info"><div class="option-title" data-i18n="s3.business">Business / Commercial</div><div class="option-desc" data-i18n="s3.business.d">Office, retail, warehouse, restaurant</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+<div class="option" data-value="rental">
+<div class="option-emoji">🔑</div>
+<div class="option-info"><div class="option-title" data-i18n="s3.rental">Rental Property</div><div class="option-desc" data-i18n="s3.rental.d">Landlord or property manager</div></div>
+<svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+</div>
+</div>
+
+<!-- STEP 4: Date -->
+<div class="step" data-step="4">
+<div class="step-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s4.title">Pick a<br><span class="italic">day.</span></h2>
+<p class="step-sub" data-i18n="s4.sub">All times shown are Miami local. We confirm by text.</p>
+<div class="date-pills" id="datePills"></div>
+<label class="form-label" data-i18n="s4.time">Preferred time window</label>
+<div class="time-grid">
+<div class="time-slot" data-value="morning"><div class="time" data-i18n="s4.morning">8 AM – 12 PM</div><div class="meta" data-i18n="s4.morning.tag">MORNING</div></div>
+<div class="time-slot" data-value="afternoon"><div class="time" data-i18n="s4.afternoon">12 PM – 4 PM</div><div class="meta" data-i18n="s4.afternoon.tag">AFTERNOON</div></div>
+<div class="time-slot" data-value="evening"><div class="time" data-i18n="s4.evening">4 PM – 7 PM</div><div class="meta" data-i18n="s4.evening.tag">EVENING</div></div>
+<div class="time-slot" data-value="anytime"><div class="time" data-i18n="s4.anytime">Anytime</div><div class="meta" data-i18n="s4.anytime.tag">FLEXIBLE</div></div>
+</div>
+</div>
+
+<!-- STEP 5: Contact info -->
+<div class="step" data-step="5">
+<div class="step-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s5.title">Who are<br><span class="italic">we helping?</span></h2>
+<p class="step-sub" data-i18n="s5.sub">A dispatcher will text you within 15 minutes to confirm.</p>
+<label class="form-label" data-i18n="s5.name">Full name</label>
+<input type="text" class="form-input" id="custName" placeholder="Maria Rodriguez">
+<label class="form-label" data-i18n="s5.phone">Phone number</label>
+<input type="tel" class="form-input" id="custPhone" placeholder="(305) 555-0123">
+<label class="form-label" data-i18n="s5.email">Email (optional)</label>
+<input type="email" class="form-input" id="custEmail" placeholder="maria@example.com">
+</div>
+
+<!-- STEP 6: Address -->
+<div class="step" data-step="6">
+<div class="step-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s6.title">Where do<br><span class="italic">we go?</span></h2>
+<p class="step-sub" data-i18n="s6.sub">Service area: All of Miami-Dade County.</p>
+<label class="form-label" data-i18n="s6.address">Street address</label>
+<input type="text" class="form-input" id="custAddress" placeholder="1234 Ocean Dr">
+<label class="form-label" data-i18n="s6.city">City</label>
+<input type="text" class="form-input" id="custCity" placeholder="Miami Beach">
+<label class="form-label" data-i18n="s6.zip">Zip code</label>
+<input type="text" class="form-input" id="custZip" placeholder="33139">
+<label class="form-label" data-i18n="s6.notes">Notes (optional)</label>
+<input type="text" class="form-input" id="custNotes" placeholder="Gate code, parking info, etc.">
+</div>
+
+<!-- STEP 7: Review -->
+<div class="step" data-step="7">
+<div class="step-icon emerald">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<h2 class="step-title" data-i18n="s7.title">All set.<br><span class="italic">Look right?</span></h2>
+<p class="step-sub" data-i18n="s7.sub">Double-check before submitting. You can still go back and edit.</p>
+<div class="urgency-banner" id="urgencyBanner" style="display:none">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+<div class="text"><strong data-i18n="s7.emergency.title">Emergency request</strong><span data-i18n="s7.emergency.sub">A dispatcher will call you immediately — keep your phone close.</span></div>
+</div>
+<div class="summary-card" id="summaryCard"></div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+<div class="success-icon-large"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+<h2 data-i18n="success.title">You're booked.</h2>
+<p data-i18n="success.sub">A dispatcher will text you within 15 minutes to confirm your slot. Watch for messages from (305) 555-0142.</p>
+<div class="confirmation-code" id="confirmCode">CONF · IAS-X9K2L</div>
+<div class="success-actions">
+<a href="tel:+13055550142" class="success-btn primary">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+<span data-i18n="success.call">Call dispatch now</span>
+</a>
+<a href="ias_florida_landing.html" class="success-btn secondary"><span data-i18n="success.home">Back to home</span></a>
+</div>
+</div>
+
+</div>
+
+<div class="app-footer" id="appFooter">
+<div class="btn-row">
+<button class="btn-back-step" id="prevBtn" style="display:none" onclick="prevStep()">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
+<button class="btn-next" id="nextBtn" onclick="nextStep()" disabled>
+<span id="nextBtnText" data-i18n="next">Continue</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+</button>
+</div>
+</div>
+
+</div>
+
+<script>
+const translations = {
+  en: {
+    'back':'Back','next':'Continue',
+    'step.1':'Service Type','step.2':'Urgency','step.3':'Property',
+    'step.4':'Schedule','step.5':'Contact','step.6':'Address','step.7':'Review',
+    's1.title':'What do you<br><span class="italic">need fixed?</span>',
+    's1.sub':'Pick the closest match. We\'ll narrow it down when we call.',
+    's1.repair':'AC Repair','s1.repair.d':'Not cooling, leaking, strange noises',
+    's1.install':'New Installation','s1.install.d':'Full system replacement or new construction',
+    's1.maintenance':'Maintenance / Tune-Up','s1.maintenance.d':'Scheduled inspection, filter, coil cleaning',
+    's1.commercial':'Commercial / Refrigeration','s1.commercial.d':'Restaurant, business, walk-in coolers',
+    's1.other':'Not sure / Other','s1.other.d':'We\'ll figure it out together',
+    's2.title':'How urgent<br><span class="italic">is this?</span>',
+    's2.sub':'Helps us prioritize and give you the right ETA.',
+    's2.emergency':'Emergency — need help now','s2.emergency.d':'Tech dispatched within 90 minutes',
+    's2.today':'Today if possible','s2.today.d':'Same-day priority slot',
+    's2.week':'Within a few days','s2.week.d':'Pick from open slots this week',
+    's2.planning':'Just planning / quoting','s2.planning.d':'No rush — request a free estimate',
+    's3.title':'Where\'s the<br><span class="italic">work happening?</span>',
+    's3.sub':'Helps us send the right tech with the right equipment.',
+    's3.house':'Single-family home','s3.house.d':'House, townhouse, duplex',
+    's3.condo':'Condo / Apartment','s3.condo.d':'High-rise or mid-rise residential',
+    's3.business':'Business / Commercial','s3.business.d':'Office, retail, warehouse, restaurant',
+    's3.rental':'Rental Property','s3.rental.d':'Landlord or property manager',
+    's4.title':'Pick a<br><span class="italic">day.</span>',
+    's4.sub':'All times shown are Miami local. We confirm by text.',
+    's4.time':'Preferred time window',
+    's4.morning':'8 AM – 12 PM','s4.morning.tag':'MORNING',
+    's4.afternoon':'12 PM – 4 PM','s4.afternoon.tag':'AFTERNOON',
+    's4.evening':'4 PM – 7 PM','s4.evening.tag':'EVENING',
+    's4.anytime':'Anytime','s4.anytime.tag':'FLEXIBLE',
+    's5.title':'Who are<br><span class="italic">we helping?</span>',
+    's5.sub':'A dispatcher will text you within 15 minutes to confirm.',
+    's5.name':'Full name','s5.phone':'Phone number','s5.email':'Email (optional)',
+    's6.title':'Where do<br><span class="italic">we go?</span>',
+    's6.sub':'Service area: All of Miami-Dade County.',
+    's6.address':'Street address','s6.city':'City','s6.zip':'Zip code','s6.notes':'Notes (optional)',
+    's7.title':'All set.<br><span class="italic">Look right?</span>',
+    's7.sub':'Double-check before submitting. You can still go back and edit.',
+    's7.emergency.title':'Emergency request',
+    's7.emergency.sub':'A dispatcher will call you immediately — keep your phone close.',
+    'submit':'Confirm booking',
+    'success.title':'You\'re booked.',
+    'success.sub':'A dispatcher will text you within 15 minutes to confirm your slot. Watch for messages from (305) 555-0142.',
+    'success.call':'Call dispatch now','success.home':'Back to home',
+    'sum.service':'Service','sum.urgency':'Urgency','sum.property':'Property type',
+    'sum.date':'Date','sum.time':'Time','sum.name':'Name','sum.phone':'Phone','sum.address':'Address',
+    'day.Mon':'MON','day.Tue':'TUE','day.Wed':'WED','day.Thu':'THU','day.Fri':'FRI','day.Sat':'SAT','day.Sun':'SUN'
+  },
+  es: {
+    'back':'Atrás','next':'Continuar',
+    'step.1':'Tipo de Servicio','step.2':'Urgencia','step.3':'Propiedad',
+    'step.4':'Horario','step.5':'Contacto','step.6':'Dirección','step.7':'Revisar',
+    's1.title':'¿Qué necesitas<br><span class="italic">arreglar?</span>',
+    's1.sub':'Escoge lo más cercano. Lo afinamos cuando te llamemos.',
+    's1.repair':'Reparación de AC','s1.repair.d':'No enfría, gotea, ruidos extraños',
+    's1.install':'Instalación Nueva','s1.install.d':'Reemplazo completo o construcción nueva',
+    's1.maintenance':'Mantenimiento','s1.maintenance.d':'Inspección, filtro, limpieza de bobinas',
+    's1.commercial':'Comercial / Refrigeración','s1.commercial.d':'Restaurante, negocio, walk-in coolers',
+    's1.other':'No estoy seguro / Otro','s1.other.d':'Lo descubrimos juntos',
+    's2.title':'¿Qué tan urgente<br><span class="italic">es esto?</span>',
+    's2.sub':'Nos ayuda a priorizar y darte el tiempo correcto.',
+    's2.emergency':'Emergencia — necesito ayuda ya','s2.emergency.d':'Técnico despachado en 90 minutos',
+    's2.today':'Hoy si es posible','s2.today.d':'Cita prioritaria el mismo día',
+    's2.week':'En unos días','s2.week.d':'Escoge un horario abierto esta semana',
+    's2.planning':'Solo planeando / cotización','s2.planning.d':'Sin prisa — pide estimado gratis',
+    's3.title':'¿Dónde es<br><span class="italic">el trabajo?</span>',
+    's3.sub':'Nos ayuda a enviar al técnico correcto con el equipo correcto.',
+    's3.house':'Casa unifamiliar','s3.house.d':'Casa, townhouse, duplex',
+    's3.condo':'Condominio / Apartamento','s3.condo.d':'High-rise o mid-rise residencial',
+    's3.business':'Negocio / Comercial','s3.business.d':'Oficina, tienda, bodega, restaurante',
+    's3.rental':'Propiedad en Renta','s3.rental.d':'Propietario o administrador',
+    's4.title':'Escoge un<br><span class="italic">día.</span>',
+    's4.sub':'Todas las horas son de Miami. Confirmamos por mensaje.',
+    's4.time':'Ventana de tiempo preferida',
+    's4.morning':'8 AM – 12 PM','s4.morning.tag':'MAÑANA',
+    's4.afternoon':'12 PM – 4 PM','s4.afternoon.tag':'TARDE',
+    's4.evening':'4 PM – 7 PM','s4.evening.tag':'NOCHE',
+    's4.anytime':'Cualquier hora','s4.anytime.tag':'FLEXIBLE',
+    's5.title':'¿A quién<br><span class="italic">ayudamos?</span>',
+    's5.sub':'Un despachador te enviará un mensaje en 15 minutos para confirmar.',
+    's5.name':'Nombre completo','s5.phone':'Número de teléfono','s5.email':'Correo (opcional)',
+    's6.title':'¿Dónde<br><span class="italic">vamos?</span>',
+    's6.sub':'Área de servicio: Todo el Condado Miami-Dade.',
+    's6.address':'Dirección','s6.city':'Ciudad','s6.zip':'Código postal','s6.notes':'Notas (opcional)',
+    's7.title':'Listo.<br><span class="italic">¿Se ve bien?</span>',
+    's7.sub':'Revisa antes de enviar. Puedes regresar a editar.',
+    's7.emergency.title':'Solicitud de emergencia',
+    's7.emergency.sub':'Un despachador te llamará de inmediato — mantén tu teléfono cerca.',
+    'submit':'Confirmar reserva',
+    'success.title':'Reservado.',
+    'success.sub':'Un despachador te enviará un mensaje en 15 minutos para confirmar. Revisa mensajes de (305) 555-0142.',
+    'success.call':'Llamar despacho ya','success.home':'Volver al inicio',
+    'sum.service':'Servicio','sum.urgency':'Urgencia','sum.property':'Tipo de propiedad',
+    'sum.date':'Fecha','sum.time':'Hora','sum.name':'Nombre','sum.phone':'Teléfono','sum.address':'Dirección',
+    'day.Mon':'LUN','day.Tue':'MAR','day.Wed':'MIÉ','day.Thu':'JUE','day.Fri':'VIE','day.Sat':'SÁB','day.Sun':'DOM'
+  }
+};
+
+const stepLabels = ['step.1','step.2','step.3','step.4','step.5','step.6','step.7'];
+let currentLang = localStorage.getItem('ias_lang') || 'en';
+let currentStep = 1;
+const TOTAL_STEPS = 7;
+
+const booking = {
+  service: null,
+  urgency: null,
+  property: null,
+  date: null,
+  time: null,
+  name: '',
+  phone: '',
+  email: '',
+  address: '',
+  city: '',
+  zip: '',
+  notes: ''
+};
+
+function t(key) { return translations[currentLang][key] || key; }
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('ias_lang', lang);
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) el.textContent = translations[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (translations[lang][key]) el.innerHTML = translations[lang][key];
+  });
+  // Step titles use innerHTML since they have <br> and spans
+  document.querySelectorAll('.step h2').forEach(el => {
+    const matches = el.outerHTML.match(/data-i18n="([^"]+)"/);
+    if (matches && translations[lang][matches[1]]) el.innerHTML = translations[lang][matches[1]];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  document.getElementById('langSlider').classList.toggle('es', lang === 'es');
+  document.getElementById('stepLabel').textContent = t(stepLabels[currentStep-1]);
+  if (currentStep === 4) renderDatePills();
+  if (currentStep === 7) renderSummary();
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+});
+
+function updateUI() {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+  document.getElementById('progressFill').style.width = (currentStep / TOTAL_STEPS * 100) + '%';
+  document.getElementById('stepCounter').textContent = `STEP ${currentStep} / ${TOTAL_STEPS}`;
+  document.getElementById('stepLabel').textContent = t(stepLabels[currentStep-1]);
+  document.getElementById('prevBtn').style.display = currentStep > 1 ? 'flex' : 'none';
+  const nextText = document.getElementById('nextBtnText');
+  nextText.setAttribute('data-i18n', currentStep === TOTAL_STEPS ? 'submit' : 'next');
+  nextText.textContent = t(currentStep === TOTAL_STEPS ? 'submit' : 'next');
+  validate();
+}
+
+function validate() {
+  const nextBtn = document.getElementById('nextBtn');
+  let valid = false;
+  if (currentStep === 1) valid = !!booking.service;
+  else if (currentStep === 2) valid = !!booking.urgency;
+  else if (currentStep === 3) valid = !!booking.property;
+  else if (currentStep === 4) valid = !!booking.date && !!booking.time;
+  else if (currentStep === 5) valid = booking.name.length >= 2 && booking.phone.length >= 7;
+  else if (currentStep === 6) valid = booking.address.length >= 3 && booking.city.length >= 2 && booking.zip.length >= 4;
+  else if (currentStep === 7) valid = true;
+  nextBtn.disabled = !valid;
+}
+
+function nextStep() {
+  if (currentStep === TOTAL_STEPS) {
+    submit();
+    return;
+  }
+  currentStep++;
+  updateUI();
+  if (currentStep === 4) renderDatePills();
+  if (currentStep === 7) renderSummary();
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateUI();
+  }
+}
+
+// Step 1, 2, 3: Option selection
+document.querySelectorAll('.step[data-step="1"] .option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.step[data-step="1"] .option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    booking.service = opt.dataset.value;
+    validate();
+  });
+});
+
+document.querySelectorAll('.step[data-step="2"] .option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.step[data-step="2"] .option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    booking.urgency = opt.dataset.value;
+    validate();
+  });
+});
+
+document.querySelectorAll('.step[data-step="3"] .option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.step[data-step="3"] .option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    booking.property = opt.dataset.value;
+    validate();
+  });
+});
+
+// Step 4: Dates
+function renderDatePills() {
+  const container = document.getElementById('datePills');
+  container.innerHTML = '';
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const pill = document.createElement('div');
+    pill.className = 'date-pill';
+    if (booking.date && booking.date.toDateString() === d.toDateString()) pill.classList.add('selected');
+    pill.innerHTML = `<div class="dow">${t('day.'+days[d.getDay()])}</div><div class="day">${d.getDate()}</div>`;
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      booking.date = d;
+      validate();
+    });
+    container.appendChild(pill);
+  }
+}
+
+document.querySelectorAll('.time-slot').forEach(slot => {
+  slot.addEventListener('click', () => {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    slot.classList.add('selected');
+    booking.time = slot.dataset.value;
+    validate();
+  });
+});
+
+// Step 5 & 6 inputs
+['custName','custPhone','custEmail','custAddress','custCity','custZip','custNotes'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    const key = id.replace('cust','').toLowerCase();
+    booking[key] = el.value.trim();
+    validate();
+  });
+});
+
+// Step 7: Summary
+function renderSummary() {
+  const card = document.getElementById('summaryCard');
+  const serviceMap = {repair:'s1.repair',install:'s1.install',maintenance:'s1.maintenance',commercial:'s1.commercial',other:'s1.other'};
+  const urgencyMap = {emergency:'s2.emergency',today:'s2.today',week:'s2.week',planning:'s2.planning'};
+  const propertyMap = {house:'s3.house',condo:'s3.condo',business:'s3.business',rental:'s3.rental'};
+  const timeMap = {morning:'s4.morning',afternoon:'s4.afternoon',evening:'s4.evening',anytime:'s4.anytime'};
+
+  const dateStr = booking.date ? booking.date.toLocaleDateString(currentLang === 'es' ? 'es-US' : 'en-US', {weekday:'long',month:'short',day:'numeric'}) : '';
+
+  card.innerHTML = `
+    <div class="summary-row"><span class="key">${t('sum.service')}</span><span class="val">${t(serviceMap[booking.service])}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.urgency')}</span><span class="val">${t(urgencyMap[booking.urgency])}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.property')}</span><span class="val">${t(propertyMap[booking.property])}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.date')}</span><span class="val">${dateStr}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.time')}</span><span class="val">${t(timeMap[booking.time])}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.name')}</span><span class="val">${booking.name}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.phone')}</span><span class="val">${booking.phone}</span></div>
+    <div class="summary-row"><span class="key">${t('sum.address')}</span><span class="val">${booking.address}, ${booking.city} ${booking.zip}</span></div>
+  `;
+
+  document.getElementById('urgencyBanner').style.display = booking.urgency === 'emergency' ? 'flex' : 'none';
+}
+
+function submit() {
+  // Hide all steps, progress, footer
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('progressSection').style.display = 'none';
+  document.getElementById('appFooter').style.display = 'none';
+  // Generate fake confirmation code
+  const code = 'IAS-' + Math.random().toString(36).substring(2,7).toUpperCase();
+  document.getElementById('confirmCode').textContent = `CONF · ${code}`;
+  document.getElementById('successScreen').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Snow
+const snowContainer = document.getElementById('snowContainer');
+const symbols = ['❄','❅','❆'];
+for (let i = 0; i < 10; i++) {
+  const f = document.createElement('div');
+  f.className = 'snowflake';
+  f.textContent = symbols[Math.floor(Math.random()*3)];
+  f.style.left = Math.random()*100 + '%';
+  f.style.fontSize = (8+Math.random()*14) + 'px';
+  f.style.animationDuration = (14+Math.random()*12) + 's';
+  f.style.animationDelay = -Math.random()*20 + 's';
+  f.style.opacity = 0.2+Math.random()*0.3;
+  snowContainer.appendChild(f);
+}
+
+applyLanguage(currentLang);
+updateUI();
+</script>
+</body>
+</html>
